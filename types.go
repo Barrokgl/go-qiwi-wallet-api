@@ -64,13 +64,14 @@ type UserInfo struct {
 	PromoEnabled       string `json:"promoEnabled"`
 }
 
+// all time should be formatted in RFC3339
 type GetHistoryParams struct {
 	Rows        int       `json:"rows" url:"rows"`
 	Operation   string    `json:"operation" url:"operation"`
 	Sources     []string  `json:"sources" url:"sources"`
-	StartDate   time.Time `json:"startDate" url:"startDate"`
-	EndDate     time.Time `json:"endDate" url:"endDate"`
-	NextTxnDate time.Time `json:"nextTxnDate" url:"nextTxnDate"`
+	StartDate   string `json:"startDate" url:"startDate"`
+	EndDate     string `json:"endDate" url:"endDate"`
+	NextTxnDate string `json:"nextTxnDate" url:"nextTxnDate"`
 	NextTxnId   int64     `json:"nextTxnId" url:"nextTxnId"`
 }
 

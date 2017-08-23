@@ -2,11 +2,9 @@ package goqiwi
 
 import (
 	"encoding/json"
-	"github.com/google/go-querystring/query"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 const apiLink = "https://edge.qiwi.com/"
@@ -28,14 +26,14 @@ func NewQiwiApi(token string, client *http.Client) *QiwiApi {
 }
 
 func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, error) {
-	URL := apiLink + "person-profile/v1/profile/current"
+	baseUrl := apiLink + "person-profile/v1/profile/current"
 
-	value, err := query.Values(params)
+	URL, err := addOptions(baseUrl, params)
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := api.request(URL, "GET", strings.NewReader(value.Encode()))
+	body, err := api.request(URL, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +43,22 @@ func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, erro
 	return &result, nil
 }
 
-func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) error {
-	URL := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
+func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) (*GetHistoryResult, error) {
+	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
 
-	value, err := query.Values(params)
+	URL, err := addOptions(baseUrl, params)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api.request(URL, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result GetHistoryResult
+	json.Unmarshal(body, &result)
+	return &result, nil
 }
 
 func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) {
