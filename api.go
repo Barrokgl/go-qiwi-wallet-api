@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"bytes"
 )
 
 const apiLink = "https://edge.qiwi.com/"
@@ -26,7 +27,7 @@ func NewQiwiApi(token string, client *http.Client) *QiwiApi {
 }
 
 // get qiwi profile information
-func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, error) {
+func (api *QiwiApi) GetProfile(params ProfileParams) (*Profile, error) {
 	baseUrl := apiLink + "person-profile/v1/profile/current"
 
 	URL, err := addOptions(baseUrl, params)
@@ -39,13 +40,13 @@ func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, erro
 		return nil, err
 	}
 
-	var result GetProfileResult
+	var result Profile
 	json.Unmarshal(body, &result)
 	return &result, nil
 }
 
 // get full history of payments
-func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) (*GetHistoryResult, error) {
+func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, error) {
 	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
 
 	URL, err := addOptions(baseUrl, params)
@@ -58,13 +59,13 @@ func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) (*GetHist
 		return nil, err
 	}
 
-	var result GetHistoryResult
+	var result History
 	json.Unmarshal(body, &result)
 	return &result, nil
 }
 
 // get statistic of payments by period
-func (api *QiwiApi) GetPaymentStatistic(wallet string, params GetPaymentStatisticParams) (*GetPaymentStatisticResult, error) {
+func (api *QiwiApi) GetPaymentStatistic(wallet string, params PaymentStatisticParams) (*PaymentStatistic, error) {
 	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/total"
 
 	URL, err := addOptions(baseUrl, params)
@@ -77,11 +78,59 @@ func (api *QiwiApi) GetPaymentStatistic(wallet string, params GetPaymentStatisti
 		return nil, err
 	}
 
-	var result GetPaymentStatisticResult
+	var result PaymentStatistic
 	json.Unmarshal(body, &result)
 	return &result, nil
 }
 
+// get balance of your account
+func (api *QiwiApi) GetBalance() (*Balances, error) {
+	baseUrl := apiLink + "funding-sources/v1/accounts/current"
+
+	body, err := api.request(baseUrl, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result Balances
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// get standard rate by provider code
+func (api *QiwiApi) GetStandardRate(providerCode string) (*StandardRate, error) {
+	baseUrl := apiLink + "sinap/providers/" + providerCode + "/form"
+
+	body, err := api.request(baseUrl, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result StandardRate
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// get special rate by provider code
+func (api *QiwiApi) GetSpecialRate(providerCode string, params SpecialRateParams) (*SpecialRate, error) {
+	baseUrl := apiLink + "sinap/providers/" + providerCode + "/onlineCommission"
+
+	data, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api.request(baseUrl, "POST", bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+
+	var result SpecialRate
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// basic request
 func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, URL, body)
 	if err != nil {

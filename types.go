@@ -1,14 +1,12 @@
 package goqiwi
 
-import "time"
-
-type GetProfileParams struct {
+type ProfileParams struct {
 	AuthInfoEnabled     bool `json:"authInfoEnabled" url:"authInfoEnabled"`
 	ContractInfoEnabled bool `json:"contractInfoEnabled" url:"contractInfoEnabled"`
 	UserInfoEnabled     bool `json:"userInfoEnabled" url:"userInfoEnabled"`
 }
 
-type GetProfileResult struct {
+type Profile struct {
 	AuthInfo     AuthInfo     `json:"authInfo"`
 	ContractInfo ContractInfo `json:"contractInfo"`
 	UserInfo     UserInfo     `json:"userInfo"`
@@ -65,7 +63,7 @@ type UserInfo struct {
 }
 
 // all dates should be formatted in RFC3339
-type GetHistoryParams struct {
+type HistoryParams struct {
 	Rows        int      `json:"rows" url:"rows"`
 	Operation   string   `json:"operation" url:"operation"`
 	Sources     []string `json:"sources" url:"sources"`
@@ -75,7 +73,7 @@ type GetHistoryParams struct {
 	NextTxnId   int64    `json:"nextTxnId" url:"nextTxnId"`
 }
 
-type GetHistoryResult struct {
+type History struct {
 	Data        []Transaction `json:"data"`
 	NextTxnId   int64         `json:"nextTxnId"`
 	NextTxnDate string        `json:"nextTxnDate"`
@@ -122,16 +120,101 @@ type Provider struct {
 	SiteUrl     string `json:"siteUrl"`
 }
 
-
 // all dates should be formatted in RFC3339
-type GetPaymentStatisticParams struct {
+type PaymentStatisticParams struct {
 	StartDate string   `json:"startDate" url:"startDate"`
 	EndDate   string   `json:"endDate" url:"endDate"`
 	Operation string   `json:"operation" url:"operation"`
 	Sources   []string `json:"sources" url:"sources"`
 }
 
-type GetPaymentStatisticResult struct {
+type PaymentStatistic struct {
 	IncomingTotal []Sum `json:"incomingTotal"`
 	OutgoingTotal []Sum `json:"outgoingTotal"`
+}
+
+type Balances struct {
+	Accounts []Account `json:"accounts"`
+}
+
+type Account struct {
+	Alias      string `json:"alias"`
+	FsAlias    string `json:"fsAlias"`
+	Title      string `json:"title"`
+	HasBalance bool   `json:"hasBalance"`
+	Currency   string `json:"currency"`
+	Type       Type   `json:"type"`
+	Balance    Sum    `json:"balance"`
+}
+
+type Type struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+}
+
+type StandardRate struct {
+	Content Content `json:"content"`
+}
+
+type Content struct {
+	Terms Terms `json:"terms"`
+}
+
+type Terms struct {
+	Cashbacks         []interface{}  `json:"cashbacks"`
+	Commission        Commission     `json:"commission"`
+	Description       string         `json:"description"`
+	ID                string         `json:"id"`
+	Identification    Identification `json:"identification"`
+	Limits            []Limit        `json:"limits"`
+	Overpayment       bool           `json:"overpayment"`
+	RepeatablePayment bool           `json:"repeatablePayment"`
+	Type              string         `json:"type"`
+	Underpayment      bool           `json:"underpayment"`
+}
+
+type Identification struct {
+	Required bool `json:"required"`
+}
+
+type Limit struct {
+	Currency string  `json:"currency"`
+	Max      float64 `json:"max"`
+	Min      float64 `json:"min"`
+}
+
+type Commission struct {
+	Ranges []Range `json:"ranges"`
+}
+
+type Range struct {
+	Bound float32 `json:"bound"`
+	Rate  float32 `json:"rate"`
+	Min   float32 `json:"min"`
+	Max   float32 `json:"max"`
+	Fixed float32 `json:"fixed"`
+}
+
+type SpecialRateParams struct {
+	Account string `json:"account"`
+	PaymentMethod PaymentMethod `json:"paymentMethod"`
+	PurchaseTotal PurchaseTotal `json:"purchaseTotal"`
+}
+
+type PurchaseTotal struct {
+	Total Sum `json:"total"`
+}
+
+type PaymentMethod struct {
+	Type      string `json:"type"`
+	AccountId string `json:"accountId"`
+}
+
+type SpecialRate struct {
+	ProviderId string `json:"providerId"`
+	WithdrawSum Sum `json:"withdrawSum"`
+	EnrollmentSum Sum `json:"enrollmentSum"`
+	QwCommission Sum `json:"qwCommission"`
+	FundingSourceCommission Sum `json:"fundingSourceCommission"`
+	WithdrawToEnrollmentRate int `json:"withdrawToEnrollmentRate"`
 }
