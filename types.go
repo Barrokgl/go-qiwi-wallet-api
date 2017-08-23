@@ -64,15 +64,15 @@ type UserInfo struct {
 	PromoEnabled       string `json:"promoEnabled"`
 }
 
-// all time should be formatted in RFC3339
+// all dates should be formatted in RFC3339
 type GetHistoryParams struct {
-	Rows        int       `json:"rows" url:"rows"`
-	Operation   string    `json:"operation" url:"operation"`
-	Sources     []string  `json:"sources" url:"sources"`
-	StartDate   string `json:"startDate" url:"startDate"`
-	EndDate     string `json:"endDate" url:"endDate"`
-	NextTxnDate string `json:"nextTxnDate" url:"nextTxnDate"`
-	NextTxnId   int64     `json:"nextTxnId" url:"nextTxnId"`
+	Rows        int      `json:"rows" url:"rows"`
+	Operation   string   `json:"operation" url:"operation"`
+	Sources     []string `json:"sources" url:"sources"`
+	StartDate   string   `json:"startDate" url:"startDate"`
+	EndDate     string   `json:"endDate" url:"endDate"`
+	NextTxnDate string   `json:"nextTxnDate" url:"nextTxnDate"`
+	NextTxnId   int64    `json:"nextTxnId" url:"nextTxnId"`
 }
 
 type GetHistoryResult struct {
@@ -120,4 +120,18 @@ type Provider struct {
 	Description string `json:"description"`
 	Keys        string `json:"keys"`
 	SiteUrl     string `json:"siteUrl"`
+}
+
+
+// all dates should be formatted in RFC3339
+type GetPaymentStatisticParams struct {
+	StartDate string   `json:"startDate" url:"startDate"`
+	EndDate   string   `json:"endDate" url:"endDate"`
+	Operation string   `json:"operation" url:"operation"`
+	Sources   []string `json:"sources" url:"sources"`
+}
+
+type GetPaymentStatisticResult struct {
+	IncomingTotal []Sum `json:"incomingTotal"`
+	OutgoingTotal []Sum `json:"outgoingTotal"`
 }

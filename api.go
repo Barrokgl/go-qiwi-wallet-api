@@ -25,6 +25,7 @@ func NewQiwiApi(token string, client *http.Client) *QiwiApi {
 	}
 }
 
+// get qiwi profile information
 func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, error) {
 	baseUrl := apiLink + "person-profile/v1/profile/current"
 
@@ -43,6 +44,7 @@ func (api *QiwiApi) GetProfile(params GetProfileParams) (*GetProfileResult, erro
 	return &result, nil
 }
 
+// get full history of payments
 func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) (*GetHistoryResult, error) {
 	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
 
@@ -57,6 +59,25 @@ func (api *QiwiApi) GetHistory(wallet string, params GetHistoryParams) (*GetHist
 	}
 
 	var result GetHistoryResult
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// get statistic of payments by period
+func (api *QiwiApi) GetPaymentStatistic(wallet string, params GetPaymentStatisticParams) (*GetPaymentStatisticResult, error) {
+	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/total"
+
+	URL, err := addOptions(baseUrl, params)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api.request(URL, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result GetPaymentStatisticResult
 	json.Unmarshal(body, &result)
 	return &result, nil
 }
