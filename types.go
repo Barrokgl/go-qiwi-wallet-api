@@ -196,7 +196,7 @@ type Range struct {
 }
 
 type SpecialRateParams struct {
-	Account string `json:"account"`
+	Account       string        `json:"account"`
 	PaymentMethod PaymentMethod `json:"paymentMethod"`
 	PurchaseTotal PurchaseTotal `json:"purchaseTotal"`
 }
@@ -211,10 +211,10 @@ type PaymentMethod struct {
 }
 
 type SpecialRate struct {
-	ProviderId string `json:"providerId"`
-	WithdrawSum Sum `json:"withdrawSum"`
-	EnrollmentSum Sum `json:"enrollmentSum"`
-	QwCommission Sum `json:"qwCommission"`
-	FundingSourceCommission Sum `json:"fundingSourceCommission"`
-	WithdrawToEnrollmentRate int `json:"withdrawToEnrollmentRate"`
+	ProviderId               string `json:"providerId"`
+	WithdrawSum              Sum    `json:"withdrawSum"`
+	EnrollmentSum            Sum    `json:"enrollmentSum"`
+	QwCommission             Sum    `json:"qwCommission"`
+	FundingSourceCommission  Sum    `json:"fundingSourceCommission"`
+	WithdrawToEnrollmentRate int    `json:"withdrawToEnrollmentRate"`
 }

@@ -1,11 +1,11 @@
 package goqiwi
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"bytes"
 )
 
 const apiLink = "https://edge.qiwi.com/"
