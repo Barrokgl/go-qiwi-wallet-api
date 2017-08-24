@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 const apiLink = "https://edge.qiwi.com/"
@@ -17,7 +18,9 @@ type QiwiApi struct {
 
 func NewQiwiApi(token string, client *http.Client) *QiwiApi {
 	if client == nil {
-		client = &http.Client{}
+		client = &http.Client{
+			Timeout: time.Second * 30,
+		}
 	}
 
 	return &QiwiApi{
