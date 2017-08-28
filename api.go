@@ -141,6 +141,73 @@ func (api *QiwiApi) GetSpecialRate(providerCode string, params SpecialRateParams
 	return &result, nil
 }
 
+// make payment from your account
+func (api *QiwiApi) Payment(providerCode string, params PaymentParams) (*Payment, error) {
+	baseUrl := apiLink + "sinap/api/v2/terms/" + providerCode + "/payments"
+
+	data, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api.request(baseUrl, "POST", bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+
+	var result Payment
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// make payment on Qiwi
+// same as (api *QiwiApi) Payment , but with hardcoded provider code
+func (api *QiwiApi) PaymentQiwi(params PaymentParams) (*Payment, error) {
+	baseUrl := apiLink + "sinap/api/v2/terms/99/payments"
+
+	data, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api.request(baseUrl, "POST", bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+
+	var result Payment
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// determines mobile operator code
+func (api *QiwiApi) DetermineOperator(phone string) (*DeterminedProvider, error) {
+	baseUrl := "https://qiwi.com/mobile/detect.action?phone=" + phone
+
+	body, err := api.request(baseUrl, "POST", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result DeterminedProvider
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
+// determines card provider
+func (api *QiwiApi) DetermineCard(cardNumber string) (*DeterminedProvider, error) {
+	baseUrl := "https://qiwi.com/card/detect.action?cardNumber=" + cardNumber
+
+	body, err := api.request(baseUrl, "POST", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result DeterminedProvider
+	json.Unmarshal(body, &result)
+	return &result, nil
+}
+
 // basic request
 func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, URL, body)

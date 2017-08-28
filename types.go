@@ -1,5 +1,7 @@
 package goqiwi
 
+import "bitbucket.org/GromKri/go-qiwi-service/qiwi"
+
 type ProfileParams struct {
 	AuthInfoEnabled     bool `json:"authInfoEnabled" url:"authInfoEnabled"`
 	ContractInfoEnabled bool `json:"contractInfoEnabled" url:"contractInfoEnabled"`
@@ -217,4 +219,49 @@ type SpecialRate struct {
 	QwCommission             Sum    `json:"qwCommission"`
 	FundingSourceCommission  Sum    `json:"fundingSourceCommission"`
 	WithdrawToEnrollmentRate int    `json:"withdrawToEnrollmentRate"`
+}
+
+type PaymentParams struct {
+	ID string `json:"id"`
+	Sum Sum `json:"sum"`
+	PaymentMethod PaymentMethod `json:"paymentMethod"`
+	Fields Fields `json:"fields"`
+	Comment string `json:"comment"`
+}
+
+type Fields struct {
+	Account string `json:"account"`
+}
+
+type Payment struct {
+	ID string `json:"id"`
+	Terms int `json:"terms"`
+	Fields Fields `json:"fields"`
+	Sum Sum `json:"sum"`
+	Source string `json:"source"`
+	Comment string `json:"comment"`
+	Transaction TransactionMin `json:"transaction"`
+}
+
+type TransactionMin struct {
+	ID string `json:"id"`
+	State State `json:"state"`
+}
+
+type State struct {
+	Code string `json:"code"`
+}
+
+type DetermineOperatorParams struct {
+	Phone string `json:"phone" url:"phone"`
+}
+
+type DeterminedProvider struct {
+	Code Code `json:"code"`
+	Message string `json:"message"`
+}
+
+type Code struct {
+	Value string `json:"value"`
+	Name string `json:"_name"`
 }
