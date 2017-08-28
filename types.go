@@ -222,11 +222,11 @@ type SpecialRate struct {
 }
 
 type PaymentParams struct {
-	ID string `json:"id"`
-	Sum Sum `json:"sum"`
+	ID            string        `json:"id"`
+	Sum           Sum           `json:"sum"`
 	PaymentMethod PaymentMethod `json:"paymentMethod"`
-	Fields Fields `json:"fields"`
-	Comment string `json:"comment"`
+	Fields        Fields        `json:"fields"`
+	Comment       string        `json:"comment"`
 }
 
 type Fields struct {
@@ -234,18 +234,18 @@ type Fields struct {
 }
 
 type Payment struct {
-	ID string `json:"id"`
-	Terms int `json:"terms"`
-	Fields Fields `json:"fields"`
-	Sum Sum `json:"sum"`
-	Source string `json:"source"`
-	Comment string `json:"comment"`
+	ID          string         `json:"id"`
+	Terms       int            `json:"terms"`
+	Fields      Fields         `json:"fields"`
+	Sum         Sum            `json:"sum"`
+	Source      string         `json:"source"`
+	Comment     string         `json:"comment"`
 	Transaction TransactionMin `json:"transaction"`
 }
 
 type TransactionMin struct {
-	ID string `json:"id"`
-	State State `json:"state"`
+	ID    string `json:"id"`
+	State State  `json:"state"`
 }
 
 type State struct {
@@ -257,11 +257,11 @@ type DetermineOperatorParams struct {
 }
 
 type DeterminedProvider struct {
-	Code Code `json:"code"`
+	Code    Code   `json:"code"`
 	Message string `json:"message"`
 }
 
 type Code struct {
 	Value string `json:"value"`
-	Name string `json:"_name"`
+	Name  string `json:"_name"`
 }

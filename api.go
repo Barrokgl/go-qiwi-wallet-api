@@ -16,6 +16,7 @@ type QiwiApi struct {
 	Client *http.Client
 }
 
+// returns QiwiApi instance
 func NewQiwiApi(token string, client *http.Client) *QiwiApi {
 	if client == nil {
 		client = &http.Client{
@@ -51,7 +52,7 @@ func (api *QiwiApi) GetProfile(params ProfileParams) (*Profile, error) {
 // get full history of payments
 func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, error) {
 	if string([]rune(wallet)[0]) == "+" {
-		wallet = wallet[:len(wallet) - len("+")]
+		wallet = wallet[:len(wallet)-len("+")]
 	}
 
 	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
@@ -74,7 +75,7 @@ func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, e
 // get statistic of payments by period
 func (api *QiwiApi) GetPaymentStatistic(wallet string, params PaymentStatisticParams) (*PaymentStatistic, error) {
 	if string([]rune(wallet)[0]) == "+" {
-		wallet = wallet[:len(wallet) - len("+")]
+		wallet = wallet[:len(wallet)-len("+")]
 	}
 
 	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/total"
