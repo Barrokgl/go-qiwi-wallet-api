@@ -1,11 +1,9 @@
 package goqiwi
 
-import "bitbucket.org/GromKri/go-qiwi-service/qiwi"
-
 type ProfileParams struct {
-	AuthInfoEnabled     bool `json:"authInfoEnabled" url:"authInfoEnabled"`
-	ContractInfoEnabled bool `json:"contractInfoEnabled" url:"contractInfoEnabled"`
-	UserInfoEnabled     bool `json:"userInfoEnabled" url:"userInfoEnabled"`
+	AuthInfoEnabled     bool `json:"authInfoEnabled,omitempty" url:"authInfoEnabled,omitempty"`
+	ContractInfoEnabled bool `json:"contractInfoEnabled,omitempty" url:"contractInfoEnabled,omitempty"`
+	UserInfoEnabled     bool `json:"userInfoEnabled,omitempty" url:"userInfoEnabled,omitempty"`
 }
 
 type Profile struct {
@@ -66,13 +64,13 @@ type UserInfo struct {
 
 // all dates should be formatted in RFC3339
 type HistoryParams struct {
-	Rows        int      `json:"rows" url:"rows"`
-	Operation   string   `json:"operation" url:"operation"`
-	Sources     []string `json:"sources" url:"sources"`
-	StartDate   string   `json:"startDate" url:"startDate"`
-	EndDate     string   `json:"endDate" url:"endDate"`
-	NextTxnDate string   `json:"nextTxnDate" url:"nextTxnDate"`
-	NextTxnId   int64    `json:"nextTxnId" url:"nextTxnId"`
+	Rows        int      `json:"rows,omitempty" url:"rows,omitempty"`
+	Operation   string   `json:"operation,omitempty" url:"operation,omitempty"`
+	Sources     []string `json:"sources,omitempty" url:"sources,omitempty"`
+	StartDate   string   `json:"startDate,omitempty" url:"startDate,omitempty"`
+	EndDate     string   `json:"endDate,omitempty" url:"endDate,omitempty"`
+	NextTxnDate string   `json:"nextTxnDate,omitempty" url:"nextTxnDate,omitempty"`
+	NextTxnId   int64    `json:"nextTxnId,omitempty" url:"nextTxnId,omitempty"`
 }
 
 type History struct {
@@ -90,11 +88,11 @@ type Transaction struct {
 	Status                 string        `json:"status"`
 	Type                   string        `json:"type"`
 	StatusText             string        `json:"statusText"`
-	TrmTxnId               int64         `json:"trmTxnId"`
+	TrmTxnId               string        `json:"trmTxnId"`
 	Account                string        `json:"account"`
-	Sum                    Sum           `json:"sum"`
-	Commission             Sum           `json:"commission"`
-	Total                  Sum           `json:"total"`
+	Sum                    SumNumeric    `json:"sum"`
+	Commission             SumNumeric    `json:"commission"`
+	Total                  SumNumeric    `json:"total"`
 	Provider               Provider      `json:"provider"`
 	Comment                string        `json:"comment"`
 	CurrencyRate           float64       `json:"currencyRate"`
@@ -112,6 +110,11 @@ type Sum struct {
 	Currency string  `json:"currency"`
 }
 
+type SumNumeric struct {
+	Amount   float64 `json:"amount"`
+	Currency int     `json:"currency"`
+}
+
 type Provider struct {
 	ID          int64  `json:"id"`
 	ShortName   string `json:"shortName"`
@@ -124,10 +127,10 @@ type Provider struct {
 
 // all dates should be formatted in RFC3339
 type PaymentStatisticParams struct {
-	StartDate string   `json:"startDate" url:"startDate"`
-	EndDate   string   `json:"endDate" url:"endDate"`
-	Operation string   `json:"operation" url:"operation"`
-	Sources   []string `json:"sources" url:"sources"`
+	StartDate string   `json:"startDate,omitempty" url:"startDate,omitempty"`
+	EndDate   string   `json:"endDate,omitempty" url:"endDate,omitempty"`
+	Operation string   `json:"operation,omitempty" url:"operation,omitempty"`
+	Sources   []string `json:"sources,omitempty" url:"sources,omitempty"`
 }
 
 type PaymentStatistic struct {
@@ -140,13 +143,13 @@ type Balances struct {
 }
 
 type Account struct {
-	Alias      string `json:"alias"`
-	FsAlias    string `json:"fsAlias"`
-	Title      string `json:"title"`
-	HasBalance bool   `json:"hasBalance"`
-	Currency   string `json:"currency"`
-	Type       Type   `json:"type"`
-	Balance    Sum    `json:"balance"`
+	Alias      string     `json:"alias"`
+	FsAlias    string     `json:"fsAlias"`
+	Title      string     `json:"title"`
+	HasBalance bool       `json:"hasBalance"`
+	Currency   string     `json:"currency"`
+	Type       Type       `json:"type"`
+	Balance    SumNumeric `json:"balance"`
 }
 
 type Type struct {
@@ -224,13 +227,16 @@ type SpecialRate struct {
 type PaymentParams struct {
 	ID            string        `json:"id"`
 	Sum           Sum           `json:"sum"`
+	Source        string        `json:"source"`
 	PaymentMethod PaymentMethod `json:"paymentMethod"`
 	Fields        Fields        `json:"fields"`
 	Comment       string        `json:"comment"`
 }
 
 type Fields struct {
-	Account string `json:"account"`
+	Account     string `json:"account"`
+	AccountType string `json:"account_type"`
+	ExpDate     string `json:"exp_date"`
 }
 
 type Payment struct {
@@ -253,7 +259,7 @@ type State struct {
 }
 
 type DetermineOperatorParams struct {
-	Phone string `json:"phone" url:"phone"`
+	Phone string `json:"phone,omitempty" url:"phone,omitempty"`
 }
 
 type DeterminedProvider struct {

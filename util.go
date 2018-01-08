@@ -1,8 +1,9 @@
 package goqiwi
 
 import (
-	"reflect"
 	"net/url"
+	"reflect"
+
 	"github.com/google/go-querystring/query"
 )
 

@@ -3,9 +3,12 @@ package goqiwi
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -54,19 +57,19 @@ func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, e
 	if string([]rune(wallet)[0]) == "+" {
 		wallet = wallet[:len(wallet)-len("+")]
 	}
-
-	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/payments"
+	log.Println(wallet)
+	baseUrl := apiLink + "payment-history/v1/persons/" + wallet + "/payments"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Println(URL)
 	body, err := api.request(URL, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Println(string(body))
 	var result History
 	json.Unmarshal(body, &result)
 	return &result, nil
@@ -143,7 +146,15 @@ func (api *QiwiApi) GetSpecialRate(providerCode string, params SpecialRateParams
 }
 
 // make payment from your account
-func (api *QiwiApi) Payment(providerCode string, params PaymentParams) (*Payment, error) {
+func (api *QiwiApi) Payment(providerCode, account string, amount float64) (*Payment, error) {
+	params := PaymentParams{
+		ID:            strconv.FormatInt(time.Now().UnixNano(), 10),
+		Sum:           Sum{Amount: amount, Currency: "643"},
+		Source:        "account_643",
+		PaymentMethod: PaymentMethod{Type: "Account", AccountId: "643"},
+		Fields:        Fields{Account: account},
+	}
+
 	baseUrl := apiLink + "sinap/api/v2/terms/" + providerCode + "/payments"
 
 	data, err := json.Marshal(params)
@@ -163,7 +174,15 @@ func (api *QiwiApi) Payment(providerCode string, params PaymentParams) (*Payment
 
 // make payment on Qiwi
 // same as (api *QiwiApi) Payment , but with hardcoded provider code
-func (api *QiwiApi) PaymentQiwi(params PaymentParams) (*Payment, error) {
+func (api *QiwiApi) PaymentQiwi(phone, comment string, amount float64) (*Payment, error) {
+	params := PaymentParams{
+		ID:            strconv.FormatInt(time.Now().UnixNano(), 10),
+		Sum:           Sum{Amount: amount, Currency: "643"},
+		Source:        "account_643",
+		PaymentMethod: PaymentMethod{Type: "Account", AccountId: "643"},
+		Comment:       comment,
+		Fields:        Fields{Account: phone},
+	}
 	baseUrl := apiLink + "sinap/api/v2/terms/99/payments"
 
 	data, err := json.Marshal(params)
@@ -231,5 +250,9 @@ func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) 
 		return nil, err
 	}
 
+	if response.StatusCode >= 400 {
+		log.Println("[REQUEST ERROR]: ", response.Status)
+		err = errors.New(response.Status)
+	}
 	return result, err
 }
