@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"golang.org/x/net/proxy"
 )
 
 const apiLink = "https://edge.qiwi.com/"
@@ -20,17 +22,31 @@ type QiwiApi struct {
 }
 
 // returns QiwiApi instance
-func NewQiwiApi(token string, client *http.Client) *QiwiApi {
-	if client == nil {
-		client = &http.Client{
-			Timeout: time.Second * 30,
-		}
+// proxyAdd - socks5 proxy address, format: 127.0.0.1:1234
+func NewQiwiApi(token, proxyAddr string, auth proxy.Auth) (*QiwiApi, error) {
+	client := &http.Client{
+		Timeout: time.Second * 30,
 	}
 
-	return &QiwiApi{
-		Token:  token,
-		Client: client,
+	api := &QiwiApi{Token: token, Client: client}
+
+	if proxyAddr != "" {
+		api.SetSOCKS5(proxyAddr, auth)
 	}
+
+	return api, nil
+}
+
+func (api *QiwiApi) SetSOCKS5(proxyAddr string, auth proxy.Auth) error {
+	dialer, err := proxy.SOCKS5("tcp", proxyAddr, &auth, proxy.Direct)
+	if err != nil {
+		return err
+	}
+	httpTransport := &http.Transport{}
+	api.Client.Transport = httpTransport
+	httpTransport.Dial = dialer.Dial
+
+	return nil
 }
 
 // get qiwi profile information
