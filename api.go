@@ -14,21 +14,27 @@ import (
 	"golang.org/x/net/proxy"
 )
 
+// default qiwi api link
 const apiLink = "https://edge.qiwi.com/"
 
 type QiwiApi struct {
-	Token  string
-	Client *http.Client
+	token  string
+	client *http.Client
+	apiUrl string
 }
 
 // returns QiwiApi instance
 // proxyAdd - socks5 proxy address, format: 127.0.0.1:1234
-func NewQiwiApi(token, proxyAddr string, auth proxy.Auth) (*QiwiApi, error) {
+func NewQiwiApi(token, apiUrl, proxyAddr string, auth proxy.Auth) (*QiwiApi, error) {
 	client := &http.Client{
 		Timeout: time.Second * 30,
 	}
 
-	api := &QiwiApi{Token: token, Client: client}
+	if apiUrl == "" {
+		apiUrl = apiLink
+	}
+
+	api := &QiwiApi{token: token, client: client, apiUrl: apiUrl}
 
 	if proxyAddr != "" {
 		api.SetSOCKS5(proxyAddr, auth)
@@ -37,21 +43,27 @@ func NewQiwiApi(token, proxyAddr string, auth proxy.Auth) (*QiwiApi, error) {
 	return api, nil
 }
 
+// sets new socks5 proxy
 func (api *QiwiApi) SetSOCKS5(proxyAddr string, auth proxy.Auth) error {
 	dialer, err := proxy.SOCKS5("tcp", proxyAddr, &auth, proxy.Direct)
 	if err != nil {
 		return err
 	}
 	httpTransport := &http.Transport{}
-	api.Client.Transport = httpTransport
+	api.client.Transport = httpTransport
 	httpTransport.Dial = dialer.Dial
 
 	return nil
 }
 
+// sets new token
+func (api *QiwiApi) SetToken(token string) {
+	api.token = token
+}
+
 // get qiwi profile information
 func (api *QiwiApi) GetProfile(params ProfileParams) (*Profile, error) {
-	baseUrl := apiLink + "person-profile/v1/profile/current"
+	baseUrl := api.apiUrl + "person-profile/v1/profile/current"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
@@ -74,7 +86,7 @@ func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, e
 		wallet = wallet[:len(wallet)-len("+")]
 	}
 	log.Println(wallet)
-	baseUrl := apiLink + "payment-history/v1/persons/" + wallet + "/payments"
+	baseUrl := api.apiUrl + "payment-history/v1/persons/" + wallet + "/payments"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
@@ -97,7 +109,7 @@ func (api *QiwiApi) GetPaymentStatistic(wallet string, params PaymentStatisticPa
 		wallet = wallet[:len(wallet)-len("+")]
 	}
 
-	baseUrl := apiLink + "/payment-history/v1/persons/" + wallet + "/total"
+	baseUrl := api.apiUrl + "/payment-history/v1/persons/" + wallet + "/total"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
@@ -116,7 +128,7 @@ func (api *QiwiApi) GetPaymentStatistic(wallet string, params PaymentStatisticPa
 
 // get balance of your account
 func (api *QiwiApi) GetBalance() (*Balances, error) {
-	baseUrl := apiLink + "funding-sources/v1/accounts/current"
+	baseUrl := api.apiUrl + "funding-sources/v1/accounts/current"
 
 	body, err := api.request(baseUrl, "GET", nil)
 	if err != nil {
@@ -130,7 +142,7 @@ func (api *QiwiApi) GetBalance() (*Balances, error) {
 
 // get standard rate by provider code
 func (api *QiwiApi) GetStandardRate(providerCode string) (*StandardRate, error) {
-	baseUrl := apiLink + "sinap/providers/" + providerCode + "/form"
+	baseUrl := api.apiUrl + "sinap/providers/" + providerCode + "/form"
 
 	body, err := api.request(baseUrl, "GET", nil)
 	if err != nil {
@@ -144,7 +156,7 @@ func (api *QiwiApi) GetStandardRate(providerCode string) (*StandardRate, error) 
 
 // get special rate by provider code
 func (api *QiwiApi) GetSpecialRate(providerCode string, params SpecialRateParams) (*SpecialRate, error) {
-	baseUrl := apiLink + "sinap/providers/" + providerCode + "/onlineCommission"
+	baseUrl := api.apiUrl + "sinap/providers/" + providerCode + "/onlineCommission"
 
 	data, err := json.Marshal(params)
 	if err != nil {
@@ -171,7 +183,7 @@ func (api *QiwiApi) Payment(providerCode, account string, amount float64) (*Paym
 		Fields:        Fields{Account: account},
 	}
 
-	baseUrl := apiLink + "sinap/api/v2/terms/" + providerCode + "/payments"
+	baseUrl := api.apiUrl + "sinap/api/v2/terms/" + providerCode + "/payments"
 
 	data, err := json.Marshal(params)
 	if err != nil {
@@ -199,7 +211,7 @@ func (api *QiwiApi) PaymentQiwi(phone, comment string, amount float64) (*Payment
 		Comment:       comment,
 		Fields:        Fields{Account: phone},
 	}
-	baseUrl := apiLink + "sinap/api/v2/terms/99/payments"
+	baseUrl := api.apiUrl + "sinap/api/v2/terms/99/payments"
 
 	data, err := json.Marshal(params)
 	if err != nil {
@@ -251,11 +263,11 @@ func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) 
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+api.Token)
+	req.Header.Add("Authorization", "Bearer "+api.token)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 
-	response, err := api.Client.Do(req)
+	response, err := api.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
