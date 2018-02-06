@@ -147,7 +147,7 @@ type Account struct {
 	FsAlias    string     `json:"fsAlias"`
 	Title      string     `json:"title"`
 	HasBalance bool       `json:"hasBalance"`
-	Currency   string     `json:"currency"`
+	Currency   int     `json:"currency"`
 	Type       Type       `json:"type"`
 	Balance    SumNumeric `json:"balance"`
 }

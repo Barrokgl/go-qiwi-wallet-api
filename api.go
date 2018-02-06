@@ -279,8 +279,9 @@ func (api *QiwiApi) request(URL, method string, body io.Reader) ([]byte, error) 
 	}
 
 	if response.StatusCode >= 400 {
-		log.Println("[REQUEST ERROR]: ", response.Status)
-		err = errors.New(response.Status)
+		log.Println("[REQUEST ERROR]: ", response.Status, string(result))
+		err = errors.New(response.Status + " : " + string(result))
 	}
+
 	return result, err
 }
