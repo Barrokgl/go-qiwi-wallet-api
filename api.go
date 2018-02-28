@@ -85,19 +85,19 @@ func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, e
 	if string([]rune(wallet)[0]) == "+" {
 		wallet = wallet[:len(wallet)-len("+")]
 	}
-	log.Println(wallet)
+	
 	baseUrl := api.apiUrl + "payment-history/v1/persons/" + wallet + "/payments"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(URL)
+	
 	body, err := api.request(URL, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(string(body))
+	
 	var result History
 	json.Unmarshal(body, &result)
 	return &result, nil
