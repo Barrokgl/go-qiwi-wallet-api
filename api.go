@@ -2,15 +2,18 @@ package goqiwi
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/satori/go.uuid"
 	"golang.org/x/net/proxy"
 )
 
@@ -21,6 +24,7 @@ type QiwiApi struct {
 	token  string
 	client *http.Client
 	apiUrl string
+	uuid   string
 }
 
 // returns QiwiApi instance
@@ -37,8 +41,10 @@ func NewQiwiApi(token, apiUrl, proxyAddr string, auth proxy.Auth) (*QiwiApi, err
 	api := &QiwiApi{token: token, client: client, apiUrl: apiUrl}
 
 	if proxyAddr != "" {
-		api.SetSOCKS5(proxyAddr, auth)
+		api.setHTTPProxy(proxyAddr, auth)
 	}
+
+	api.uuid = uuid.NewV4().String()
 
 	return api, nil
 }
@@ -53,6 +59,21 @@ func (api *QiwiApi) SetSOCKS5(proxyAddr string, auth proxy.Auth) error {
 	api.client.Transport = httpTransport
 	httpTransport.Dial = dialer.Dial
 
+	return nil
+}
+
+func (api *QiwiApi) setHTTPProxy(proxyAddr string, auth proxy.Auth) error {
+	proxyURL, err := url.Parse(proxyAddr)
+	if err != nil {
+		return err
+	}
+	headers := make(http.Header)
+	headers.Add("Proxy-Key", api.uuid)
+
+	api.client.Transport = &http.Transport{
+		Proxy: http.ProxyURL(proxyURL), TLSClientConfig: &tls.Config{},
+		ProxyConnectHeader: headers,
+	}
 	return nil
 }
 
@@ -85,19 +106,19 @@ func (api *QiwiApi) GetHistory(wallet string, params HistoryParams) (*History, e
 	if string([]rune(wallet)[0]) == "+" {
 		wallet = wallet[:len(wallet)-len("+")]
 	}
-	
+
 	baseUrl := api.apiUrl + "payment-history/v1/persons/" + wallet + "/payments"
 
 	URL, err := addOptions(baseUrl, params)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	body, err := api.request(URL, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var result History
 	json.Unmarshal(body, &result)
 	return &result, nil
