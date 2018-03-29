@@ -31,7 +31,7 @@ type QiwiApi struct {
 // proxyAdd - socks5 proxy address, format: 127.0.0.1:1234
 func NewQiwiApi(token, apiUrl, proxyAddr string, auth proxy.Auth) (*QiwiApi, error) {
 	client := &http.Client{
-		Timeout: time.Second * 30,
+		Timeout: time.Second * 60,
 	}
 
 	if apiUrl == "" {
